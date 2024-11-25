@@ -1,0 +1,123 @@
+Standar API
+
+{root.api}/{version}/{gruoping}/{endpoint}
+SAMPLE:
+http://api-zul.zultampan.com/v1/auth/login
+
+============================================================================================================================
+
+Standar Response Status
+
+200 - OK                        --> Call API Success
+201 - CREATD                    --> Post Success
+400 - BAD REQUEST               --> Error on Client Side (bisa input yang salah dll.)
+401 - UNAUTHORIZED              --> User Not Authorized to Teh Request
+403 - FORBIDDEN                 --> User Not Allowed to Access
+404 - NOT FOUND                 --> Request Endpoint Not Found
+500 - INTERNAL SERVER ERROR     --> Error on Server Side
+502 - BAD GATEWAT               --> Invalid Response From Another Request
+
+============================================================================================================================
+
+GROUP: Autentication
+
+[1] - Register
+{root.api}/{version}/auth/register
+
+req:
+{
+    "name": "Testing",
+    "email": "test@gmail.com"
+    "password": "pwtest123"
+}
+
+res:
+{
+    "message": "Register Success"
+    "data": {
+        "id": 1,
+        "name": "Testing",
+        "email": "test@gmail.com"
+        "password": "pwtest123"
+    }
+}
+
+err-response:
+201 -> Register Sukses!
+400 -> Input yang Anda Masukkan Tidak Valid!
+
+============================================================================================================================
+
+============================================================================================================================
+
+[2] - Login
+{root.api}/{version}/auth/login
+
+req:
+{
+    "email": "test@gmail.com",
+    "password": "pwtest123"
+}
+
+res:
+{
+    "message": "Login Success",
+    "token": "your-jwt-token",
+    "data": {
+        "id": 1,
+        "name": "Testing",
+        "email": "test@gmail.com"
+    }
+}
+
+err-response:
+401 -> Register Sukses!
+400 -> Input yang Anda masukkan tidak valid!
+
+============================================================================================================================
+
+============================================================================================================================
+
+GROUP: Movie
+
+[1] - Create Movie
+{root.api}/{version}/movie/create
+
+req:
+{
+    "title": "Interstellar",
+    "image": "imagefile.png"
+    "description": "A science fiction movie about space exploration.",
+    "genre": "Sci-Fi",
+    "year": 2014
+}
+
+res:
+{
+    "message": "Movie Created Successfully",
+    "data": {
+        "movie_id": 1,
+        "title": "Interstellar",
+        "image": "imagefile.png"
+        "description": "A science fiction movie about space exploration.",
+        "genre": "Sci-Fi",
+        "year": year
+        "created_at": "12/12/2012"
+        "author": {
+            "uid": 1,
+            "name": "Testing Create!"
+        }
+    }
+}
+
+err-response:
+201 -> Movie Berhasil Dibuat!
+400 -> Input yang Anda masukkan tidak valid!
+
+============================================================================================================================
+
+[2] - Read/Get Movie
+[3] - Update Movie
+[4] - Delete Movie
+
+============================================================================================================================
