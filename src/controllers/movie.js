@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const Movie = require("../models/movie");
 
@@ -57,11 +57,25 @@ exports.createMovie = (req, res, next) => {
 };
 
 exports.getAllMovie = (req, res, next) => {
-  Movie.find()
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 8;
+  let totalItems;
+
+  Movie.countDocuments()
+    .then((count) => {
+      totalItems = count;
+      return Movie.find()
+        .skip((parseInt(page) - 1) * parseInt(limit))
+        .limit(parseInt(limit));
+    })
     .then((result) => {
       res.status(200).json({
         message: "Get All Movie Success!",
         data: result,
+        total_items: totalItems,
+        current_page: parseInt(page),
+        limit: parseInt(limit),
+        // total_page: Math.ceil(totalItems / limit),
       });
     })
     .catch((err) => {
@@ -127,7 +141,9 @@ exports.updateMovie = (req, res, next) => {
         message: "Movie Updated!",
         data: {
           ...result._doc,
-          image: req.file ? `http://localhost:4000/${result.image}` : result.image,
+          image: req.file
+            ? `http://localhost:4000/${result.image}`
+            : result.image,
         },
       });
     })
@@ -169,7 +185,7 @@ exports.deleteMovie = (req, res, next) => {
 };
 
 const removeImage = (filePath) => {
-  const fullPath = path.join(__dirname, '..', '..', filePath);
+  const fullPath = path.join(__dirname, "..", "..", filePath);
   fs.unlink(fullPath, (err) => {
     if (err) {
       console.error("Error removing image:", err);
