@@ -28,7 +28,7 @@ app.use(
 // Middleware CORS
 app.use(
   cors({
-    origin: "http://localhost:5173", // Domain Front End
+    origin: "http://localhost:5173",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: "Content-Type,Authorization",
     exposedHeaders: "Content-Type,Authorization",
