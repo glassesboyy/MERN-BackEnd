@@ -69,13 +69,14 @@ exports.getAllMovie = (req, res, next) => {
         .limit(parseInt(limit));
     })
     .then((result) => {
+      const totalPages = Math.ceil(totalItems / limit);
       res.status(200).json({
         message: "Get All Movie Success!",
         data: result,
         total_items: totalItems,
+        total_pages: totalPages,
         current_page: parseInt(page),
         limit: parseInt(limit),
-        // total_page: Math.ceil(totalItems / limit),
       });
     })
     .catch((err) => {
