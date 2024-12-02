@@ -5,17 +5,17 @@ const multer = require("multer");
 const path = require("path");
 const helmet = require("helmet");
 const cors = require("cors");
-const rateLimit = require("express-rate-limit");
+// const rateLimit = require("express-rate-limit");
 
 const movieRoutes = require("./src/routes/movie");
 const authRoutes = require("./src/routes/auth");
 
 const app = express();
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,
+//   max: 100,
+// });
 
 // Middleware keamanan
 app.use(helmet());
@@ -79,7 +79,7 @@ app.use((error, req, res, next) => {
 // Koneksi ke MongoDB
 mongoose
   .connect(
-    "mongodb+srv://glassesboyy:NhpoxelNHnkZ6Uxy@cluster0.mm7cg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://glassesboyy:odEVljdOZzsCY73z@cluster0.mm7cg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
   )
   .then(() => {
     app.listen(4000, () => {
