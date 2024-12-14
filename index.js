@@ -5,7 +5,7 @@ const multer = require("multer");
 const path = require("path");
 const helmet = require("helmet");
 const cors = require("cors");
-// const rateLimit = require("express-rate-limit");
+const rateLimit = require("express-rate-limit");
 
 const movieRoutes = require("./src/routes/movie");
 const authRoutes = require("./src/routes/auth");
