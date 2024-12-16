@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const Movie = require("../models/movie");
+const Genre = require("../models/genre");
 
 exports.createMovie = (req, res, next) => {
   const error = validationResult(req);
@@ -19,17 +20,43 @@ exports.createMovie = (req, res, next) => {
     throw err;
   }
 
-  const { title, description, genre, year } = req.body;
+  const { title, description, genres, year } = req.body;
 
   const image = req.file.path
     .replace(/\\/g, "/")
     .replace("C:/laragon/www/MERN/api-zul/", "");
 
+  let parsedGenres;
+  try {
+    if (typeof req.body.genres === 'string') {
+      // Handle jika input string JSON array
+      try {
+        parsedGenres = JSON.parse(req.body.genres);
+      } catch {
+        // Jika bukan JSON valid, mungkin single ID
+        if (req.body.genres.match(/^[0-9a-fA-F]{24}$/)) {
+          parsedGenres = [req.body.genres];
+        } else {
+          throw new Error("Format genres tidak valid!");
+        }
+      }
+    } else if (Array.isArray(req.body.genres)) {
+      // Jika sudah dalam bentuk array (dari form-data dengan genres[])
+      parsedGenres = req.body.genres;
+    } else {
+      throw new Error("Format genres tidak valid!");
+    }
+  } catch (err) {
+    const error = new Error(err.message || "Format genres tidak valid!");
+    error.statusCode = 400;
+    throw error;
+  }
+
   const movie = new Movie({
     title: title,
     image: image,
     description: description,
-    genre: genre,
+    genres: parsedGenres,
     year: year,
     author: {
       uid: 1,
@@ -37,8 +64,25 @@ exports.createMovie = (req, res, next) => {
     },
   });
 
+  let createdMovie;
+
   movie
     .save()
+    .then((result) => {
+      createdMovie = result;
+      // Update all referenced genres to include this movie
+      const genreUpdates = parsedGenres.map(genreId => 
+        Genre.findByIdAndUpdate(
+          genreId,
+          { $push: { movies: result._id } },
+          { new: true }
+        )
+      );
+      return Promise.all(genreUpdates);
+    })
+    .then(() => {
+      return createdMovie.populate('genres');
+    })
     .then((result) => {
       res.status(201).json({
         message: "Movie Created!",
@@ -65,6 +109,7 @@ exports.getAllMovie = (req, res, next) => {
     .then((count) => {
       totalItems = count;
       return Movie.find()
+        .populate('genres')
         .skip((parseInt(page) - 1) * parseInt(limit))
         .limit(parseInt(limit));
     })
@@ -87,6 +132,7 @@ exports.getAllMovie = (req, res, next) => {
 exports.getMovieById = (req, res, next) => {
   const id = req.params.id;
   Movie.findById(id)
+    .populate('genres')
     .then((result) => {
       if (!result) {
         const err = new Error("Movie Not Found!");
@@ -113,7 +159,10 @@ exports.updateMovie = (req, res, next) => {
   }
 
   const movieId = req.params.id;
-  const { title, description, genre, year } = req.body;
+  const { title, description, genres, year } = req.body;
+
+  let oldGenres = [];
+  let updatedMovie;
 
   Movie.findById(movieId)
     .then((movie) => {
@@ -123,6 +172,8 @@ exports.updateMovie = (req, res, next) => {
         throw err;
       }
 
+      oldGenres = movie.genres;
+      
       if (req.file) {
         const image = req.file.path
           .replace(/\\/g, "/")
@@ -132,19 +183,40 @@ exports.updateMovie = (req, res, next) => {
 
       movie.title = title;
       movie.description = description;
-      movie.genre = genre;
+      movie.genres = genres;
       movie.year = year;
 
       return movie.save();
     })
     .then((result) => {
+      updatedMovie = result;
+      // Remove movie from old genres
+      const removeFromOldGenres = oldGenres.map(genreId =>
+        Genre.findByIdAndUpdate(
+          genreId,
+          { $pull: { movies: movieId } }
+        )
+      );
+      return Promise.all(removeFromOldGenres);
+    })
+    .then(() => {
+      // Add movie to new genres
+      const addToNewGenres = genres.map(genreId =>
+        Genre.findByIdAndUpdate(
+          genreId,
+          { $addToSet: { movies: movieId } }
+        )
+      );
+      return Promise.all(addToNewGenres);
+    })
+    .then(() => {
       res.status(200).json({
         message: "Movie Updated!",
         data: {
-          ...result._doc,
+          ...updatedMovie._doc,
           image: req.file
-            ? `http://localhost:4000/${result.image}`
-            : result.image,
+            ? `http://localhost:4000/${updatedMovie.image}`
+            : updatedMovie.image,
         },
       });
     })
@@ -168,7 +240,20 @@ exports.deleteMovie = (req, res, next) => {
       }
 
       const imagePath = movie.image;
-      return Movie.findByIdAndDelete(movieId).then(() => {
+      const genres = movie.genres;
+
+      // Remove movie reference from all associated genres
+      const genreUpdates = genres.map(genreId =>
+        Genre.findByIdAndUpdate(
+          genreId,
+          { $pull: { movies: movieId } }
+        )
+      );
+
+      return Promise.all([
+        Movie.findByIdAndDelete(movieId),
+        ...genreUpdates
+      ]).then(() => {
         removeImage(imagePath);
       });
     })
