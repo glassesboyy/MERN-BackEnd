@@ -100,7 +100,7 @@ exports.deleteGenre = async (req, res, next) => {
       throw error;
     }
 
-    await Genre.findByIdAndDelete(req.params.id); // Changed from findByIdAndRemove to findByIdAndDelete
+    await Genre.findByIdAndDelete(req.params.id);
     res.status(200).json({
       message: "Genre deleted"
     });
