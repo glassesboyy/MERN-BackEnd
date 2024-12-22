@@ -10,6 +10,7 @@ const rateLimit = require("express-rate-limit");
 const movieRoutes = require("./src/routes/movie");
 const authRoutes = require("./src/routes/auth");
 const genreRoutes = require("./src/routes/genre");
+const productionSeriesRoutes = require("./src/routes/productionSeries");
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/v1/movie", upload.single("image"), movieRoutes);
 app.use("/v1/auth", authRoutes);
 app.use("/v1/genre", genreRoutes);
+app.use("/v1/production-series", productionSeriesRoutes);
 
 // Error handling middleware
 app.use((error, req, res, next) => {

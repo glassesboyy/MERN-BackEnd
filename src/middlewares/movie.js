@@ -40,6 +40,30 @@ const validateMovie = [
     .isNumeric()
     .isLength({ min: 4, max: 4 })
     .withMessage("Year harus diisi dengan 4 angka!"),
+  body("productionSeries")
+    .not()
+    .isEmpty()
+    .withMessage("Production Series harus dipilih!")
+    .custom((value) => {
+      try {
+        // Jika input adalah string JSON
+        if (typeof value === 'string') {
+          // Cek apakah valid MongoDB ObjectId
+          if (value.match(/^[0-9a-fA-F]{24}$/)) {
+            return true;
+          }
+          // Jika dalam format JSON string, parse dulu
+          const parsed = JSON.parse(value);
+          if (typeof parsed === 'string' && parsed.match(/^[0-9a-fA-F]{24}$/)) {
+            return true;
+          }
+        }
+        return false;
+      } catch (err) {
+        return false;
+      }
+    })
+    .withMessage("Production Series ID tidak valid!"),
 ];
 
 module.exports = validateMovie;

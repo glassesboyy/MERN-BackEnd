@@ -20,7 +20,7 @@ exports.createMovie = (req, res, next) => {
     throw err;
   }
 
-  const { title, description, genres, year } = req.body;
+  const { title, description, genres, year, productionSeries } = req.body;
 
   const image = req.file.path.replace(/\\/g, "/");
 
@@ -50,12 +50,31 @@ exports.createMovie = (req, res, next) => {
     throw error;
   }
 
+  // Parse productionSeries ID
+  let parsedProductionSeries;
+  try {
+    if (typeof productionSeries === 'string') {
+      try {
+        const parsed = JSON.parse(productionSeries);
+        parsedProductionSeries = parsed;
+      } catch {
+        // Jika bukan JSON valid, gunakan value langsung
+        parsedProductionSeries = productionSeries;
+      }
+    }
+  } catch (err) {
+    const error = new Error("Format Production Series tidak valid!");
+    error.statusCode = 400;
+    throw error;
+  }
+
   const movie = new Movie({
     title: title,
     image: image,
     description: description,
     genres: parsedGenres,
     year: year,
+    productionSeries: parsedProductionSeries,
     author: {
       uid: 1,
       name: "Teguh Surya Zulfikar",
@@ -127,9 +146,10 @@ exports.getAllMovie = async (req, res, next) => {
     // Get total count for pagination
     const totalItems = await Movie.countDocuments(query);
 
-    // Get filtered movies
+    // Get filtered movies with populated genres and productionSeries
     const movies = await Movie.find(query)
       .populate('genres')
+      .populate('productionSeries')  // Add this line to populate productionSeries
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);

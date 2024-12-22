@@ -29,6 +29,11 @@ const movieSchema = new Schema(
       ref: "User",
       required: true,
     },
+    productionSeries: {
+      type: Schema.Types.ObjectId,
+      ref: "ProductionSeries",
+      required: true,
+    },
   },
   { timestamps: true }
 );
