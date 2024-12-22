@@ -22,4 +22,7 @@ router.put("/post/:id", validateMovie, (req, res) => {
 });
 router.delete("/post/:id", movieController.deleteMovie);
 
+// Add new route before module.exports
+router.get("/genre/:genreId", movieController.getAllMovie);
+
 module.exports = router;

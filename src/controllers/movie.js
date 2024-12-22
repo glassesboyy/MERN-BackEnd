@@ -98,38 +98,65 @@ exports.createMovie = (req, res, next) => {
     });
 };
 
-exports.getAllMovie = (req, res, next) => {
-  const page = req.query.page || 1;
-  const limit = req.query.limit || 8;
-  let totalItems;
+exports.getAllMovie = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 8;
+    const genre = req.query.genre;
+    const search = req.query.search;
+    const year = req.query.year;
 
-  Movie.countDocuments()
-    .then((count) => {
-      totalItems = count;
-      return Movie.find()
-        .populate('genres')
-        .skip((parseInt(page) - 1) * parseInt(limit))
-        .limit(parseInt(limit));
-    })
-    .then((result) => {
-      const movies = result.map(movie => ({
-        ...movie._doc,
-        image: `http://localhost:4000/${movie.image}`
-      }));
-      
-      const totalPages = Math.ceil(totalItems / limit);
-      res.status(200).json({
-        message: "Get All Movie Success!",
-        data: movies,
+    // Build query
+    let query = {};
+    
+    // Filter by genre if specified
+    if (genre) {
+      query.genres = genre;
+    }
+
+    // Filter by year if specified
+    if (year) {
+      query.year = year;
+    }
+
+    // Search by title if specified
+    if (search) {
+      query.title = { $regex: search, $options: 'i' };
+    }
+
+    // Get total count for pagination
+    const totalItems = await Movie.countDocuments(query);
+
+    // Get filtered movies
+    const movies = await Movie.find(query)
+      .populate('genres')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const formattedMovies = movies.map(movie => ({
+      ...movie._doc,
+      image: `http://localhost:4000/${movie.image}`
+    }));
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    res.status(200).json({
+      message: "Get All Movie Success!",
+      data: formattedMovies,
+      pagination: {
         total_items: totalItems,
         total_pages: totalPages,
-        current_page: parseInt(page),
-        limit: parseInt(limit),
-      });
-    })
-    .catch((err) => {
-      next(err);
+        current_page: page,
+        limit: limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
     });
+
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.getMovieById = (req, res, next) => {
