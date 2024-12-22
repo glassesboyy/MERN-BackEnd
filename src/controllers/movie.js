@@ -22,9 +22,7 @@ exports.createMovie = (req, res, next) => {
 
   const { title, description, genres, year } = req.body;
 
-  const image = req.file.path
-    .replace(/\\/g, "/")
-    .replace("C:/laragon/www/MERN/api-zul/", "");
+  const image = req.file.path.replace(/\\/g, "/");
 
   let parsedGenres;
   try {
@@ -114,10 +112,15 @@ exports.getAllMovie = (req, res, next) => {
         .limit(parseInt(limit));
     })
     .then((result) => {
+      const movies = result.map(movie => ({
+        ...movie._doc,
+        image: `http://localhost:4000/${movie.image}`
+      }));
+      
       const totalPages = Math.ceil(totalItems / limit);
       res.status(200).json({
         message: "Get All Movie Success!",
-        data: result,
+        data: movies,
         total_items: totalItems,
         total_pages: totalPages,
         current_page: parseInt(page),
@@ -141,7 +144,10 @@ exports.getMovieById = (req, res, next) => {
       }
       res.status(200).json({
         message: "Get Movie By Id Success!",
-        data: result,
+        data: {
+          ...result._doc,
+          image: `http://localhost:4000/${result.image}`
+        },
       });
     })
     .catch((err) => {

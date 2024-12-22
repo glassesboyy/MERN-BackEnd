@@ -42,7 +42,7 @@ app.use(
 // Konfigurasi penyimpanan file dengan Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "uploads/movieimages"));
+    cb(null, "uploads/movieimages");  // Simplified path
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -63,7 +63,7 @@ const upload = multer({
 app.use(bodyParser.json());
 
 // Menjadikan folder 'uploads' dapat diakses publik
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static("uploads"));
 
 // Route untuk movie, auth, dan genre
 app.use("/v1/movie", upload.single("image"), movieRoutes);
