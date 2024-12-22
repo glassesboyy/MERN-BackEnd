@@ -27,11 +27,9 @@ exports.createMovie = (req, res, next) => {
   let parsedGenres;
   try {
     if (typeof req.body.genres === 'string') {
-      // Handle jika input string JSON array
       try {
         parsedGenres = JSON.parse(req.body.genres);
       } catch {
-        // Jika bukan JSON valid, mungkin single ID
         if (req.body.genres.match(/^[0-9a-fA-F]{24}$/)) {
           parsedGenres = [req.body.genres];
         } else {
@@ -39,7 +37,6 @@ exports.createMovie = (req, res, next) => {
         }
       }
     } else if (Array.isArray(req.body.genres)) {
-      // Jika sudah dalam bentuk array (dari form-data dengan genres[])
       parsedGenres = req.body.genres;
     } else {
       throw new Error("Format genres tidak valid!");
@@ -124,6 +121,7 @@ exports.getAllMovie = async (req, res, next) => {
     const genre = req.query.genre;
     const search = req.query.search;
     const year = req.query.year;
+    const productionSeries = req.query.productionSeries;
 
     // Build query
     let query = {};
@@ -136,6 +134,11 @@ exports.getAllMovie = async (req, res, next) => {
     // Filter by year if specified
     if (year) {
       query.year = year;
+    }
+
+    // Filter by productionSeries if specified
+    if (productionSeries) {
+      query.productionSeries = productionSeries;
     }
 
     // Search by title if specified

@@ -22,10 +22,6 @@ router.put("/post/:id", validateMovie, (req, res) => {
 });
 router.delete("/post/:id", movieController.deleteMovie);
 
-// Add new route before module.exports
 router.get("/genre/:genreId", movieController.getAllMovie);
-
-// Remove this line since we'll handle it in production series routes
-// router.get("/production-series", movieController.getProductionSeries);
 
 module.exports = router;
