@@ -21,7 +21,6 @@ router.put("/post/:id", validateMovie, (req, res) => {
   movieController.updateMovie(req, res);
 });
 router.delete("/post/:id", movieController.deleteMovie);
-
 router.get("/genre/:genreId", movieController.getAllMovie);
 
 module.exports = router;
