@@ -12,10 +12,12 @@ const genreSchema = new Schema(
       type: String,
       required: true,
     },
-    movies: [{
-      type: Schema.Types.ObjectId,
-      ref: "Movie"
-    }]
+    movies: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Movie",
+      },
+    ],
   },
   { timestamps: true }
 );

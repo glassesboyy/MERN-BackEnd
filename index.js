@@ -43,7 +43,7 @@ app.use(
 // Konfigurasi penyimpanan file dengan Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/movieimages");  // Simplified path
+    cb(null, "uploads/movieimages"); // Simplified path
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -83,7 +83,7 @@ app.use((error, req, res, next) => {
 // Koneksi ke MongoDB
 mongoose
   .connect(
-    "mongodb+srv://glassesboyy:odEVljdOZzsCY73z@cluster0.mm7cg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://glassesboyy:25VEa0gRTDhGatoK@cluster0.mm7cg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
   )
   .then(() => {
     app.listen(4000, () => {
