@@ -11,6 +11,7 @@ const movieRoutes = require("./src/routes/movie");
 const authRoutes = require("./src/routes/auth");
 const genreRoutes = require("./src/routes/genre");
 const productionSeriesRoutes = require("./src/routes/productionSeries");
+const mahasiswaRoutes = require("./src/routes/mahasiswa");
 
 const app = express();
 
@@ -66,11 +67,12 @@ app.use(bodyParser.json());
 // Menjadikan folder 'uploads' dapat diakses publik
 app.use("/uploads", express.static("uploads"));
 
-// Route untuk movie, auth, dan genre
+// Route Utama
 app.use("/v1/movie", upload.single("image"), movieRoutes);
 app.use("/v1/auth", authRoutes);
 app.use("/v1/genre", genreRoutes);
 app.use("/v1/production-series", productionSeriesRoutes);
+app.use("/v1/mahasiswa", mahasiswaRoutes);
 
 // Error handling middleware
 app.use((error, req, res, next) => {
@@ -83,7 +85,7 @@ app.use((error, req, res, next) => {
 // Koneksi ke MongoDB
 mongoose
   .connect(
-    "mongodb+srv://glassesboyy:25VEa0gRTDhGatoK@cluster0.mm7cg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://glassesboyy:p3nRpakadDZlW30P@cluster0.mm7cg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
   )
   .then(() => {
     app.listen(4000, () => {

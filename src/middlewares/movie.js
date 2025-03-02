@@ -11,13 +11,13 @@ const validateMovie = [
     .custom((value) => {
       try {
         // Jika input adalah string JSON
-        if (typeof value === 'string') {
+        if (typeof value === "string") {
           const parsed = JSON.parse(value);
           return Array.isArray(parsed);
         }
-        
+
         // Jika input adalah single ID
-        if (typeof value === 'string' && value.match(/^[0-9a-fA-F]{24}$/)) {
+        if (typeof value === "string" && value.match(/^[0-9a-fA-F]{24}$/)) {
           return true;
         }
 
@@ -47,14 +47,14 @@ const validateMovie = [
     .custom((value) => {
       try {
         // Jika input adalah string JSON
-        if (typeof value === 'string') {
+        if (typeof value === "string") {
           // Cek apakah valid MongoDB ObjectId
           if (value.match(/^[0-9a-fA-F]{24}$/)) {
             return true;
           }
           // Jika dalam format JSON string, parse dulu
           const parsed = JSON.parse(value);
-          if (typeof parsed === 'string' && parsed.match(/^[0-9a-fA-F]{24}$/)) {
+          if (typeof parsed === "string" && parsed.match(/^[0-9a-fA-F]{24}$/)) {
             return true;
           }
         }
